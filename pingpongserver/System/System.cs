@@ -6,11 +6,6 @@ namespace MySystem
     {
         public ActorSystem ActorSystem;
 
-        ~System()
-        {
-            SystemShutdown();
-        }
-
         public bool SystemStart()
         {
             ActorSystem = ActorSystem.Create("MyActorSystem");

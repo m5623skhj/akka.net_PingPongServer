@@ -22,9 +22,10 @@ namespace pingpongserver
                 return;
             }
 
-            ActorSystem MyActorSystem = MySystem.System.GetInst.ActorSystem;
+            // 좌항은 명시적인 타입 선언대신, var 를 사용한다.
+            var MyActorSystem = MySystem.System.GetInst.ActorSystem;
 
-            IActorRef MyPingPongServer = MyActorSystem.ActorOf(Props.Create(() =>
+            var MyPingPongServer = MyActorSystem.ActorOf(Props.Create(() =>
                 new PingPongServer(63325)), "MyPingPongServer");
 
             MyActorSystem.WhenTerminated.Wait();

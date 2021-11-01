@@ -15,10 +15,9 @@ namespace pingpongserver.Server
 
         protected override void OnReceive(object message)
         {
-            if(message is Tcp.Bound)
+            if(message is Tcp.Bound bound)
             {
-                Akka.IO.Tcp.Bound Bound = message as Tcp.Bound;
-                Console.WriteLine("Listening on {0}", Bound.LocalAddress);
+                Console.WriteLine("Listening on {0}", bound.LocalAddress);
             }
             else if(message is Tcp.Connected)
             {
