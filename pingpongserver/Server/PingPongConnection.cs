@@ -10,10 +10,10 @@ namespace pingpongserver.Server
 {
     public class PingPongConnection : UntypedActor
     {
-        // readonly 는 const 대신 사용하는 용도
-        // 최초 생성시 set 후 수정방지하려면 아래와 같이 사용 
         public IActorRef Connection { get; init; }
-        public readonly Redis RedisConnection;
+        public Redis RedisConnection { get; init; }
+
+        Action<Message.MessageBase> pakcethandler;
 
         public PingPongConnection(IActorRef connection)
         {
@@ -38,29 +38,16 @@ namespace pingpongserver.Server
         {
             var ReceivedMessage = message as Tcp.Received;
 
-            /*/
-            // 좀 더 간결
             if(ReceivedMessage is Tcp.Received msg)
-            {
-                
-            }
-
-            /*/
-            //  원래코드 
-            if (ReceivedMessage != null)
             {
                 var RecvPacket = PacketGenerator.GetInst.MakePacket(ReceivedMessage.Data.ToString());
                 pakcethandler?.Invoke(RecvPacket);
             }
-            //*/
-            
             // 클라이언트에서 연결 종료
             else
             {
                 this.Self.GracefulStop(TimeSpan.FromMilliseconds(10));
-                //Context.Stop(Self);
             }
-            //*/
         }
 
         protected override void Unhandled(object message)
@@ -69,23 +56,14 @@ namespace pingpongserver.Server
             Console.WriteLine("UnHandled message received {0}", message.ToString());
         }
 
-        // 이런 느낌의 함수는
         private void PacketHandle(Message.MessageBase recvPacket)
         {
             recvPacket.PacketHandle(this);
         }
 
-        // C# 델리게이트 검색해보기 
-        Action<Message.MessageBase> pakcethandler;
-
         public void SendPacket(Message.MessageBase packet)
         {
-            /*/
             Connection.Tell(Tcp.Write.Create(ByteString.FromBytes(PacketGenerator.GetInst.ClassToBytes(packet))));
-            //*/
-            Connection.Tell("TestString");
-            //*/
         }
-
     }
 }

@@ -22,7 +22,6 @@ namespace pingpongserver
                 return;
             }
 
-            // 좌항은 명시적인 타입 선언대신, var 를 사용한다.
             var MyActorSystem = MySystem.System.GetInst.ActorSystem;
 
             var MyPingPongServer = MyActorSystem.ActorOf(Props.Create(() =>

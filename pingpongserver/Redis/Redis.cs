@@ -8,22 +8,46 @@ using MyMessage.Chatting2User;
 // https://infodbbase.tistory.com/135
 namespace RedisChattingServer
 {
-    // IDisposable 패턴 정석으로 구현해보기 
     public class Redis : IDisposable
     {
         private ConnectionMultiplexer redisConnection;
         private ISubscriber subscriber;
 
         private IDatabase DB;    
-        public PingPongConnection UserConnection { get; init; }
+        public PingPongConnection userConnection { get; init; }
 
         private HashSet<string> subscribeChannelSet = new HashSet<string>();
 
+        private bool isDisposed = false;
+
         public Redis(PingPongConnection Connection)
         {
-            UserConnection = Connection;          
+            userConnection = Connection;          
 
             Init();
+        }
+
+        ~Redis() => Dispose(false);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                ChannelUnsubscribeAll();
+            }
+
+            isDisposed = true;
         }
 
         bool Init(/*string host, int port*/)
@@ -48,11 +72,6 @@ namespace RedisChattingServer
             }
         }
 
-        public void Dispose()
-        {
-            ChannelUnsubscribeAll();
-        }
-
         public bool ChannelSubscribe(string channel)
         {
             subscribeChannelSet.Add(channel);
@@ -70,7 +89,7 @@ namespace RedisChattingServer
                 Packet.ChannelName = channel;
                 Packet.ChatMessage = value;
 
-                UserConnection.SendPacket(Packet);
+                userConnection.SendPacket(Packet);
             });
 
             return true;
