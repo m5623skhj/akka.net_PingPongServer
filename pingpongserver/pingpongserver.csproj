@@ -6,6 +6,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Properties\**" />
+    <Compile Remove="web\**" />
+    <EmbeddedResource Remove="Properties\**" />
+    <EmbeddedResource Remove="web\**" />
+    <None Remove="Properties\**" />
+    <None Remove="web\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Message\Protocol.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Configuration\App.config" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Akka" Version="1.4.25" />
     <PackageReference Include="Akka.Cluster" Version="1.4.25" />
     <PackageReference Include="Akka.Remote" Version="1.4.25" />
@@ -13,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Redis\" />
+    <Folder Include="Configuration\" />
   </ItemGroup>
 
 </Project>

@@ -4,21 +4,45 @@ using Akka.Actor;
 using Akka.IO;
 
 using MyMessage;
-using RedisChattingServer;
+using RedisConnectionChattingServer;
 
 namespace pingpongserver.Server
 {
-    public class PingPongConnection : UntypedActor
+    public class PingPongConnection : UntypedActor, IDisposable
     {
-        public IActorRef Connection { get; init; }
-        public Redis RedisConnection { get; init; }
+        public IActorRef connection { get; init; }
+        public RedisConnection redisConnection { get; init; }
 
-        Action<Message.MessageBase> pakcethandler;
+        Action<IMessage> pakcethandler;
+        private bool isDisposed = false;
+
+        ~PingPongConnection() => Dispose(false);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                redisConnection.Dispose();
+            }
+
+            isDisposed = true;
+        }
 
         public PingPongConnection(IActorRef connection)
         {
-            Connection = connection;
-            RedisConnection = new Redis(this);
+            this.connection = connection;
+            redisConnection = new RedisConnection(this);
             pakcethandler += PacketHandle;
         }
 
@@ -29,8 +53,7 @@ namespace pingpongserver.Server
 
         protected override void PostStop()
         {
-            RedisConnection.Dispose();
-
+            Dispose();
             base.PostStop();
         }
 
@@ -40,7 +63,12 @@ namespace pingpongserver.Server
 
             if(ReceivedMessage is Tcp.Received msg)
             {
-                var RecvPacket = PacketGenerator.GetInst.MakePacket(ReceivedMessage.Data.ToString());
+                var RecvPacket = PacketGenerator.GetInst.CreateMessage(ReceivedMessage.Data.ToString());
+                if(RecvPacket == null)
+                {
+                    this.Self.GracefulStop(TimeSpan.FromMilliseconds(10));
+                    return;
+                }
                 pakcethandler?.Invoke(RecvPacket);
             }
             // 클라이언트에서 연결 종료
@@ -56,14 +84,14 @@ namespace pingpongserver.Server
             Console.WriteLine("UnHandled message received {0}", message.ToString());
         }
 
-        private void PacketHandle(Message.MessageBase recvPacket)
+        private void PacketHandle(IMessage recvPacket)
         {
             recvPacket.PacketHandle(this);
         }
 
-        public void SendPacket(Message.MessageBase packet)
+        public void SendPacket(IMessage packet)
         {
-            Connection.Tell(Tcp.Write.Create(ByteString.FromBytes(PacketGenerator.GetInst.ClassToBytes(packet))));
+            connection.Tell(Tcp.Write.Create(ByteString.FromBytes(PacketGenerator.GetInst.ClassToBytes(packet))));
         }
     }
 }

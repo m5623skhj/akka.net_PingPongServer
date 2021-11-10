@@ -6,9 +6,9 @@ using pingpongserver.Server;
 using MyMessage.Chatting2User;
 
 // https://infodbbase.tistory.com/135
-namespace RedisChattingServer
+namespace RedisConnectionChattingServer
 {
-    public class Redis : IDisposable
+    public class RedisConnection : IDisposable
     {
         private ConnectionMultiplexer redisConnection;
         private ISubscriber subscriber;
@@ -20,14 +20,14 @@ namespace RedisChattingServer
 
         private bool isDisposed = false;
 
-        public Redis(PingPongConnection Connection)
+        public RedisConnection(PingPongConnection Connection)
         {
             userConnection = Connection;          
 
             Init();
         }
 
-        ~Redis() => Dispose(false);
+        ~RedisConnection() => Dispose(false);
 
         public void Dispose()
         {
@@ -56,7 +56,7 @@ namespace RedisChattingServer
 
             try
             {
-                //RedisConnection = ConnectionMultiplexer.Connect(host + ":" + port);
+                //RedisConnectionConnection = ConnectionMultiplexer.Connect(host + ":" + port);
                 redisConnection = ConnectionMultiplexer.Connect("127.0.0.1:6379");
                 if(redisConnection.IsConnected)
                 {
