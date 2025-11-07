@@ -66,4 +66,3 @@ RecvChatting { ChannelName: string(16), ChatMessage: string(64) }  // 수신
 
 - [Akka.NET I/O Documentation](https://getakka.net/articles/networking/io.html)
 - [Akka.NET 한글 튜토리얼](https://blog.rajephon.dev/2018/12/08/akka-02/)
-- [Redis C# 연동](https://infodbbase.tistory.com/135)
